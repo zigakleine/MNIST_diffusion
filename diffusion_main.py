@@ -18,6 +18,7 @@ import logging
 from models.transformer_film_cond import TransformerDDPME
 from PIL import Image
 
+logging.basicConfig(format="%(asctime)s - %(levelname)s: %(message)s", level=logging.INFO, datefmt="%I:%M:%S")
 
 class Diffusion:
 
