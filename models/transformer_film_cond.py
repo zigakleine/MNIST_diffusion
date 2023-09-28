@@ -52,7 +52,7 @@ class TransformerDDPME(nn.Module):
         assert emb.shape == (noise.shape[0], channels)
         return emb
 
-    def forward(self, x, t, emotions):
+    def forward(self, x, t, labels):
 
         B, T, C = x.shape
 
@@ -71,7 +71,7 @@ class TransformerDDPME(nn.Module):
         x = self.to_mlp_layers(x)
 
         for mlp_layer in self.mlp_layers:
-            x = mlp_layer(x, t, emotions)
+            x = mlp_layer(x, t, labels)
 
         x = self.transformer_norm_2(x)
         logits = self.lm_head(x)  # logits = B, T, vocab_size
@@ -128,9 +128,9 @@ class MlpLayer(nn.Module):
         self.denseFiLM = DenseFiLM(timestep_embed_channels, mlp_dims, categories)
         self.denseResBlock = DenseResBlock(mlp_dims)
 
-    def forward(self, x, t, emotions):
+    def forward(self, x, t, labels):
 
-        scale, shift = self.denseFiLM(t, emotions)
+        scale, shift = self.denseFiLM(t, labels)
         x = self.denseResBlock(x, scale, shift)
         return x
 
@@ -233,23 +233,29 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 if __name__ == "__main__":
-    # pass
-    categories = {'numbers': 10}
-    seq_len = 28
-    vocab_size = 28
-    num_timesteps = 1000
+    pass
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = TransformerDDPME(categories).to(device)
-    print(model)
-    print(count_parameters(model))
+    # categories = {'numbers': 10}
+    # seq_len = 28
+    # vocab_size = 28
+    # num_timesteps = 1000
+    #
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #
+    # model = TransformerDDPME(categories).to(device)
+    # print(model)
+    # print(count_parameters(model))
 
     # x_ = torch.ones(64, seq_len, vocab_size)
     # t_ = torch.randint(low=1, high=1000, size=(64, 1), dtype=torch.int64)
     # emotions = torch.ones(size=(64,), dtype=torch.int64)
     # # emotions = None
     # out = model(x_, t_, emotions)
+
+
+
+
 
     #
     #

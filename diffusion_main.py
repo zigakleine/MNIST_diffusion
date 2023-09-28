@@ -62,7 +62,7 @@ class Diffusion:
 
                 t = (torch.ones(n)*i).long().to(self.device)
                 t_expand = t[:, None]
-                predicted_noise = model(x, t_expand, torch.tensor([labels]))
+                predicted_noise = model(x, t_expand, labels)
                 if cfg_scale > 0:
                     uncond_predicted_noise = model(x, t_expand, None)
                     predicted_noise = torch.lerp(uncond_predicted_noise, predicted_noise, cfg_scale)
@@ -118,6 +118,7 @@ def train():
     train_losses = []
 
     os.makedirs("./generated", exist_ok=True)
+    os.makedirs("./loss_plots", exist_ok=True)
 
     for epoch in range(epochs):
 
@@ -158,8 +159,8 @@ def train():
         logging.info(f"Learning rate at epoch  {epoch}:{current_lr}")
         logging.info(f"Epoch {epoch} mean training loss: {mean_train_loss}")
 
-        sampled_latents = diffusion.sample(model, 1, 5, cfg_scale=3)
-        sampled_latents = sampled_latents.numpy()
+        sampled_latents = diffusion.sample(model, 1, torch.tensor([5]).to(device), cfg_scale=3)
+        sampled_latents = torch.Tensor.cpu(sampled_latents).numpy()
         sampled_latents = sampled_latents.squeeze(0)
         im = Image.fromarray(sampled_latents)
         im.save(f"./generated/{epoch}.jpg")
@@ -177,7 +178,7 @@ def train():
         plt.ylabel('Loss')
         plt.title('Validation and Training Losses')
         plt.legend()
-        loss_plot_abs_path = f"./loss_plot_{epoch}.png"
+        loss_plot_abs_path = f"./loss_plots/loss_plot_{epoch}.png"
         plt.savefig(loss_plot_abs_path)
         plt.clf()
 
